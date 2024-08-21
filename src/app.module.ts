@@ -10,6 +10,7 @@ import configuration from '@config/env';
 import { LoansModule } from '@modules/loans/loans.module';
 import { BooksModule } from '@modules/books/books.module';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from '@modules/users/users.module';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({ ...options }),
-    // UsersModule,
+    UsersModule,
     LoansModule,
     BooksModule,
   ],

@@ -21,6 +21,18 @@ export class CreateTableUsers1721324997301 implements MigrationInterface {
             name: 'password',
             type: 'varchar',
           },
+          {
+            name: 'createdAt',
+            type: 'bigint',
+            isNullable: false,
+            default: 'extract(epoch from now()) * 1000',
+          },
+          {
+            name: 'updatedAt',
+            type: 'bigint',
+            isNullable: false,
+            default: 'extract(epoch from now()) * 1000',
+          },
         ],
       }),
     );
