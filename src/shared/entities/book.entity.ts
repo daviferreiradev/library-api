@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Loan } from './loan.entity';
+import { BookStatus } from '@shared/enums/bookStatus.enum';
 
 @Entity('books')
 export class Book {
@@ -22,8 +23,8 @@ export class Book {
   @Column()
   author: string;
 
-  @Column()
-  status: string;
+  @Column({ type: 'enum', enum: BookStatus })
+  status: BookStatus;
 
   @Column()
   category: string;

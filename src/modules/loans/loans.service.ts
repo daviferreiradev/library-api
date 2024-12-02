@@ -1,26 +1,80 @@
-// import { Injectable } from '@nestjs/common';
-// import { CreateLoanDto } from './dto/create-loan.dto';
-// import { UpdateLoanDto } from './dto/update-loan.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Book } from '@shared/entities/book.entity';
+import { Loan } from '@shared/entities/loan.entity';
+import { LoanStatus } from '@shared/enums/loanStatus.enum';
 
-// @Injectable()
-// export class LoansService {
-//   create(createLoanDto: CreateLoanDto) {
-//     return 'This action adds a new loan';
-//   }
+@Injectable()
+export class LoanService {
+  constructor(
+    @InjectRepository(Loan)
+    private readonly loanRepository: Repository<Loan>,
+    @InjectRepository(Book)
+    private readonly bookRepository: Repository<Book>,
+  ) {}
 
-//   findAll() {
-//     return `This action returns all loans`;
-//   }
+  async rentBook(
+    bookIds: number[],
+    loanDate: Date,
+    dueDate: Date,
+  ): Promise<Loan> {
+    // Verificar se os livros estão disponíveis
+    const books = await this.bookRepository.findByIds(bookIds);
 
-//   findOne(id: number) {
-//     return `This action returns a #${id} loan`;
-//   }
+    if (books.length !== bookIds.length) {
+      throw new NotFoundException('Um ou mais livros não foram encontrados.');
+    }
 
-//   update(id: number, updateLoanDto: UpdateLoanDto) {
-//     return `This action updates a #${id} loan`;
-//   }
+    for (const book of books) {
+      if (book.status !== 0) {
+        throw new BadRequestException(
+          `O livro ${book.title} não está disponível.`,
+        );
+      }
+    }
 
-//   remove(id: number) {
-//     return `This action removes a #${id} loan`;
-//   }
-// }
+    // Atualizar o status dos livros
+    books.forEach((book) => (book.status = 1));
+    await this.bookRepository.save(books);
+
+    // Criar o empréstimo
+    const loan = this.loanRepository.create({
+      loanDate,
+      dueDate,
+      status: LoanStatus.ATIVO,
+      books,
+    });
+    return this.loanRepository.save(loan);
+  }
+
+  async returnBook(loanId: number): Promise<Loan> {
+    const loan = await this.loanRepository.findOne({
+      where: { id: loanId },
+      relations: ['books'],
+    });
+
+    if (!loan) {
+      throw new NotFoundException('Empréstimo não encontrado.');
+    }
+
+    if (loan.status !== LoanStatus.ATIVO) {
+      throw new BadRequestException('O empréstimo já foi finalizado.');
+    }
+
+    // Atualizar o status do empréstimo
+    loan.status = LoanStatus.DEVOLVIDO;
+    loan.returnDate = new Date();
+
+    // Atualizar o status dos livros
+    for (const book of loan.books) {
+      book.status = 0;
+    }
+    await this.bookRepository.save(loan.books);
+    return this.loanRepository.save(loan);
+  }
+}

@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Book } from './book.entity';
+import { LoanStatus } from '@shared/enums/loanStatus.enum';
 
 @Entity('loans')
 export class Loan {
@@ -16,14 +17,18 @@ export class Loan {
   @Column()
   loanDate: Date;
 
-  @Column()
+  @Column({ nullable: true })
   returnDate: Date;
 
   @Column()
   dueDate: Date;
 
-  @Column()
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: LoanStatus,
+    default: LoanStatus.ATIVO,
+  })
+  status: LoanStatus;
 
   @OneToMany(() => Book, (book) => book.loan)
   books: Book[];

@@ -10,23 +10,23 @@ export const options: PostgresConnectionOptions = {
   username: env().database.user,
   password: env().database.password,
   database: env().database.name,
-  synchronize: false,
+  synchronize: true,
   logging: ['error'],
   entities: [
     path.join(__dirname, '..', '..', 'shared', 'entities', '*.entity.{ts,js}'),
   ],
-  migrations: [
-    path.join(
-      __dirname,
-      '..',
-      '..',
-      'shared',
-      'infra',
-      'typeorm',
-      'migrations',
-      '*{.js,.ts}',
-    ),
-  ],
+  // migrations: [
+  //   path.join(
+  //     __dirname,
+  //     '..',
+  //     '..',
+  //     'shared',
+  //     'infra',
+  //     'typeorm',
+  //     'migrations',
+  //     '*{.js,.ts}',
+  //   ),
+  // ],
   // subscribers: [
   //   path.join(
   //     __dirname,

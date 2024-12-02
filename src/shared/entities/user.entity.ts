@@ -24,9 +24,9 @@ export class User {
   @JoinColumn()
   loan: Loan;
 
-  @CreateDateColumn({ type: 'bigint' })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'bigint' })
+  @UpdateDateColumn()
   updatedAt: Date;
 }

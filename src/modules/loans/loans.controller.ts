@@ -1,34 +1,21 @@
-// import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-// import { LoansService } from './loans.service';
-// import { CreateLoanDto } from './dto/create-loan.dto';
-// import { UpdateLoanDto } from './dto/update-loan.dto';
+import { Controller, Post, Body, Param, Patch } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { LoanService } from './loans.service';
+import { RentBookDto } from './dto/rentBook.dto';
 
-// @Controller('loans')
-// export class LoansController {
-//   constructor(private readonly loansService: LoansService) {}
+@ApiTags('loans')
+@Controller('loans')
+export class LoanController {
+  constructor(private readonly loanService: LoanService) {}
 
-//   @Post()
-//   create(@Body() createLoanDto: CreateLoanDto) {
-//     return this.loansService.create(createLoanDto);
-//   }
+  @Post('rent')
+  async rentBook(@Body() rentBookDto: RentBookDto) {
+    const { bookIds, loanDate, dueDate } = rentBookDto;
+    return this.loanService.rentBook(bookIds, loanDate, dueDate);
+  }
 
-//   @Get()
-//   findAll() {
-//     return this.loansService.findAll();
-//   }
-
-//   @Get(':id')
-//   findOne(@Param('id') id: string) {
-//     return this.loansService.findOne(+id);
-//   }
-
-//   @Patch(':id')
-//   update(@Param('id') id: string, @Body() updateLoanDto: UpdateLoanDto) {
-//     return this.loansService.update(+id, updateLoanDto);
-//   }
-
-//   @Delete(':id')
-//   remove(@Param('id') id: string) {
-//     return this.loansService.remove(+id);
-//   }
-// }
+  @Patch(':id/return')
+  async returnBook(@Param('id') id: number) {
+    return this.loanService.returnBook(id);
+  }
+}
